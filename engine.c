@@ -3,7 +3,11 @@
 #include <ESP8266WebServer.h>
 
 // 定义 L9110S 电机驱动模块的输入引脚
-const int MotorA1 = D1;
+// 引脚定义
+// 这里使用了 NodeMCU 开发板的 D1-D8 引脚作为电机驱动模块的输入引脚
+// MotorA 是右前方的电机，MotorB 是右后方的电机，MotorC 是左前方的电机，MotorD 是左后方的电机
+// MotorA1 和 MotorA2 控制 MotorA 的正转和反转，MotorB1 和 MotorB2 控制 MotorB 的正转和反转，依此类推
+const int MotorA1 = D1;   
 const int MotorA2 = D2;
 const int MotorB1 = D3;
 const int MotorB2 = D4;
@@ -42,13 +46,101 @@ void setup() {
 void goforwards(){ 
 
     analogWrite(MotorA1,speed);
-    analogWrite(MotorA2,speed);
+    analogWrite(MotorA2,0);
     analogWrite(MotorB1,speed);
+    analogWrite(MotorB2,0);
+    analogWrite(MotorC1,speed);
+    analogWrite(MotorC2,0);
+    analogWrite(MotorD1,speed);
+    analogWrite(MotorD2,0);
+
+}
+void goBack(){ 
+    analogWrite(MotorA1,0);
+    analogWrite(MotorA2,speed);
+    analogWrite(MotorB1,0);
+    analogWrite(MotorB2,speed);
+    analogWrite(MotorC1,0);
+    analogWrite(MotorC2,speed);
+    analogWrite(MotorD1,0);
+    analogWrite(MotorD2,speed);
+}
+// 右侧的两个电机向前，左侧的两个电机向后
+void goLeft(){   
+
+    analogWrite(MotorA1,speed);
+    analogWrite(MotorA2,0);
+    analogWrite(MotorB1,speed);
+    analogWrite(MotorB2,0);
+    analogWrite(MotorC1,0);
+    analogWrite(MotorC2,speed);
+    analogWrite(MotorD1,0);
+    analogWrite(MotorD2,speed);
+
+}
+// 右侧的两个电机向后，左侧的两个电机向前
+void goRight(){ 
+
+    analogWrite(MotorA1,0);
+    analogWrite(MotorA2,speed);
+    analogWrite(MotorB1,0);
     analogWrite(MotorB2,speed);
     analogWrite(MotorC1,speed);
-    analogWrite(MotorC2,speed);
+    analogWrite(MotorC2,0);
     analogWrite(MotorD1,speed);
-    analogWrite(MotorD2,speed);
+    analogWrite(MotorD2,0);
+
+}
+// 左侧的电机较快，右侧的电机较慢
+void goAheadRight(){ 
+    
+    analogWrite(MotorA1,speed/speed_Coeff)
+    analogWrite(MotorA2,0);
+    analogWrite(MotorB1,speed/speed_Coeff);
+    analogWrite(MotorB2,0);
+    analogWrite(MotorC1,speed);
+    analogWrite(MotorC2,0);
+    analogWrite(MotorD1,speed);
+    analogWrite(MotorD2,0);
+
+}
+// 右侧的电机较快，左侧的电机较慢
+void goAheadLeft(){ 
+    
+    analogWrite(MotorA1,speed);
+    analogWrite(MotorA2,0);
+    analogWrite(MotorB1,speed);
+    analogWrite(MotorB2,0);
+    analogWrite(MotorC1,speed/speed_Coeff);
+    analogWrite(MotorC2,0);
+    analogWrite(MotorD1,speed/speed_Coeff);
+    analogWrite(MotorD2,0);
+
+}
+// 左侧的电机较快，右侧的电机较慢 但是是倒车
+void goBackRight(){ 
+    
+    analogWrite(MotorA1,0);
+    analogWrite(MotorA2,speed/speed_Coeff);
+    analogWrite(MotorB1,0);
+    analogWrite(MotorB2,speed/speed_Coeff);
+    analogWrite(MotorC1,speed);
+    analogWrite(MotorC2,0);
+    analogWrite(MotorD1,speed);
+    analogWrite(MotorD2,0);
+
+}
+// 右侧的电机较快，左侧的电机较慢 但是是倒车
+void goBackLeft(){ 
+    
+    analogWrite(MotorA1,speed);
+    analogWrite(MotorA2,0);
+    analogWrite(MotorB1,speed);
+    analogWrite(MotorB2,0);
+    analogWrite(MotorC1,0);
+    analogWrite(MotorC2,speed/speed_Coeff);
+    analogWrite(MotorD1,0);
+    analogWrite(MotorD2,speed/speed_Coeff);
 
 }
 
