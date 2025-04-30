@@ -2,6 +2,12 @@
 #include <WiFiClient.h> 
 #include <ESP8266WebServer.h>
 
+String command;   
+// String to store app command state.
+int speed = 128;         
+// Speed of the motors. 0-255
+int speed_Coeff = 3;
+
 // 定义 L9110S 电机驱动模块的输入引脚
 // 引脚定义
 // 这里使用了 NodeMCU 开发板的 D1-D8 引脚作为电机驱动模块的输入引脚
@@ -48,10 +54,8 @@ void setup() {
   // Starting WEB-server 
   server.on("/", HTTP_handleRoot);
   server.onNotFound(HTTP_handleRoot);
-  if (!server.begin()) {
-    Serial.println("Failed to start web server");
-    while (1); // 若启动失败，进入死循环
-  }
+  server.begin();
+
 }
 
 void goforwards() { 
@@ -159,35 +163,42 @@ void stop() {
     digitalWrite(MotorD2, LOW);
 }
 
-String command;             // String to store app command state.
-int speed = 128;         // Speed of the motors. 0-255
-int speed_Coeff = 3;
-
+// 处理 HTTP 请求
+// 通过按钮控制电机的运动
+// 通过滑块控制电机的速度
+// 当用户点击网页上的按钮（如 “Forward”“Backward” 等）时，JavaScript 函数sendCommand会被调用。
+// 这个函数使用XMLHttpRequest对象创建一个 GET 请求，并将相应的指令（如 “F”“B” 等）发送到 ESP8266 的 IP 地址。
+// ESP8266 接收到这些指令后，会执行相应的函数来控制小车的运动。
 void HTTP_handleRoot() {
     String html = "<html><body>";
     html += "<h1>ESP8266 Car Control</h1>";
-    html += "<a href='/?State=F'>Forward</a><br>";
-    html += "<a href='/?State=B'>Backward</a><br>";
-    html += "<a href='/?State=L'>Left</a><br>";
-    html += "<a href='/?State=R'>Right</a><br>";
-    html += "<a href='/?State=I'>Ahead Right</a><br>";
-    html += "<a href='/?State=G'>Ahead Left</a><br>";
-    html += "<a href='/?State=J'>Back Right</a><br>";
-    html += "<a href='/?State=H'>Back Left</a><br>";
-    html += "<a href='/?State=0'>Speed 0</a><br>";
-    html += "<a href='/?State=1'>Speed 25</a><br>";
-    html += "<a href='/?State=2'>Speed 50</a><br>";
-    html += "<a href='/?State=3'>Speed 75</a><br>";
-    html += "<a href='/?State=4'>Speed 100</a><br>";
-    html += "<a href='/?State=5'>Speed 125</a><br>";
-    html += "<a href='/?State=6'>Speed 150</a><br>";
-    html += "<a href='/?State=7'>Speed 175</a><br>";
-    html += "<a href='/?State=8'>Speed 200</a><br>";
-    html += "<a href='/?State=9'>Speed 240</a><br>";
-    html += "<a href='/?State=S'>Stop</a><br>";
+    html += "<button onclick=\"sendCommand('F')\">Forward</button><br>";  // 定义按钮
+    html += "<button onclick=\"sendCommand('B')\">Backward</button><br>";
+    html += "<button onclick=\"sendCommand('L')\">Left</button><br>";
+    html += "<button onclick=\"sendCommand('R')\">Right</button><br>";
+    html += "<button onclick=\"sendCommand('I')\">Ahead Right</button><br>";
+    html += "<button onclick=\"sendCommand('G')\">Ahead Left</button><br>";
+    html += "<button onclick=\"sendCommand('J')\">Back Right</button><br>";
+    html += "<button onclick=\"sendCommand('H')\">Back Left</button><br>";
+    html += "<button onclick=\"sendCommand('S')\">Stop</button><br>";
+    html += "<label for=\"speedSlider\">Speed:</label>";      // 定义滑块
+    html += "<input type=\"range\" id=\"speedSlider\" min=\"0\" max=\"255\" value=\"" + String(speed) + "\" oninput=\"updateSpeed(this.value)\"><br>";
+    html += "<script>";
+    html += "function sendCommand(command) {";
+    html += "    var xhr = new XMLHttpRequest();";
+    html += "    xhr.open('GET', '/?State=' + command, true);";
+    html += "    xhr.send();";
+    html += "}";
+    html += "function updateSpeed(value) {";
+    html += "    var xhr = new XMLHttpRequest();";
+    html += "    xhr.open('GET', '/?State=' + value, true);";
+    html += "    xhr.send();";
+    html += "}";
+    html += "</script>";
     html += "</body></html>";
     server.send(200, "text/html", html);
 }
+
 
 void loop() {
     server.handleClient();
