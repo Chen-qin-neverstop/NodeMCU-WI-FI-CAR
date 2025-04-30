@@ -16,6 +16,12 @@ const int MotorC2 = D6;
 const int MotorD1 = D7;
 const int MotorD2 = D8;
 
+// 定义 WiFi 信息
+const char* ssid = "NodeMCU Car";
+const char* password = "12345678"; // 设置 WiFi 密码
+
+ESP8266WebServer server(80);
+
 void setup() {
   // 设置引脚为输出模式
   pinMode(MotorA1, OUTPUT);
@@ -30,122 +36,119 @@ void setup() {
   Serial.begin(115200);
 
   // Connecting WiFi
-
   WiFi.mode(WIFI_AP);
-  WiFi.softAP(ssid);
+  if (!WiFi.softAP(ssid, password)) {
+    Serial.println("Failed to start WiFi AP");
+    while (1); // 若启动失败，进入死循环
+  }
   IPAddress myIP = WiFi.softAPIP();
   Serial.print("AP IP address: ");
   Serial.println(myIP);
- 
- // Starting WEB-server 
-     server.on ( "/", HTTP_handleRoot );
-     server.onNotFound ( HTTP_handleRoot );
-     server.begin();    
+
+  // Starting WEB-server 
+  server.on("/", HTTP_handleRoot);
+  server.onNotFound(HTTP_handleRoot);
+  if (!server.begin()) {
+    Serial.println("Failed to start web server");
+    while (1); // 若启动失败，进入死循环
+  }
 }
 
-void goforwards(){ 
-
-    analogWrite(MotorA1,speed);
-    analogWrite(MotorA2,0);
-    analogWrite(MotorB1,speed);
-    analogWrite(MotorB2,0);
-    analogWrite(MotorC1,speed);
-    analogWrite(MotorC2,0);
-    analogWrite(MotorD1,speed);
-    analogWrite(MotorD2,0);
-
+void goforwards() { 
+    analogWrite(MotorA1, speed);
+    analogWrite(MotorA2, 0);
+    analogWrite(MotorB1, speed);
+    analogWrite(MotorB2, 0);
+    analogWrite(MotorC1, speed);
+    analogWrite(MotorC2, 0);
+    analogWrite(MotorD1, speed);
+    analogWrite(MotorD2, 0);
 }
-void goBack(){ 
-    analogWrite(MotorA1,0);
-    analogWrite(MotorA2,speed);
-    analogWrite(MotorB1,0);
-    analogWrite(MotorB2,speed);
-    analogWrite(MotorC1,0);
-    analogWrite(MotorC2,speed);
-    analogWrite(MotorD1,0);
-    analogWrite(MotorD2,speed);
+
+void goBack() { 
+    analogWrite(MotorA1, 0);
+    analogWrite(MotorA2, speed);
+    analogWrite(MotorB1, 0);
+    analogWrite(MotorB2, speed);
+    analogWrite(MotorC1, 0);
+    analogWrite(MotorC2, speed);
+    analogWrite(MotorD1, 0);
+    analogWrite(MotorD2, speed);
 }
+
 // 右侧的两个电机向前，左侧的两个电机向后
-void goLeft(){   
-
-    analogWrite(MotorA1,speed);
-    analogWrite(MotorA2,0);
-    analogWrite(MotorB1,speed);
-    analogWrite(MotorB2,0);
-    analogWrite(MotorC1,0);
-    analogWrite(MotorC2,speed);
-    analogWrite(MotorD1,0);
-    analogWrite(MotorD2,speed);
-
+void goLeft() {   
+    analogWrite(MotorA1, speed);
+    analogWrite(MotorA2, 0);
+    analogWrite(MotorB1, speed);
+    analogWrite(MotorB2, 0);
+    analogWrite(MotorC1, 0);
+    analogWrite(MotorC2, speed);
+    analogWrite(MotorD1, 0);
+    analogWrite(MotorD2, speed);
 }
+
 // 右侧的两个电机向后，左侧的两个电机向前
-void goRight(){ 
-
-    analogWrite(MotorA1,0);
-    analogWrite(MotorA2,speed);
-    analogWrite(MotorB1,0);
-    analogWrite(MotorB2,speed);
-    analogWrite(MotorC1,speed);
-    analogWrite(MotorC2,0);
-    analogWrite(MotorD1,speed);
-    analogWrite(MotorD2,0);
-
+void goRight() { 
+    analogWrite(MotorA1, 0);
+    analogWrite(MotorA2, speed);
+    analogWrite(MotorB1, 0);
+    analogWrite(MotorB2, speed);
+    analogWrite(MotorC1, speed);
+    analogWrite(MotorC2, 0);
+    analogWrite(MotorD1, speed);
+    analogWrite(MotorD2, 0);
 }
+
 // 左侧的电机较快，右侧的电机较慢
-void goAheadRight(){ 
-    
-    analogWrite(MotorA1,speed/speed_Coeff)
-    analogWrite(MotorA2,0);
-    analogWrite(MotorB1,speed/speed_Coeff);
-    analogWrite(MotorB2,0);
-    analogWrite(MotorC1,speed);
-    analogWrite(MotorC2,0);
-    analogWrite(MotorD1,speed);
-    analogWrite(MotorD2,0);
-
+void goAheadRight() { 
+    analogWrite(MotorA1, speed / speed_Coeff);
+    analogWrite(MotorA2, 0);
+    analogWrite(MotorB1, speed / speed_Coeff);
+    analogWrite(MotorB2, 0);
+    analogWrite(MotorC1, speed);
+    analogWrite(MotorC2, 0);
+    analogWrite(MotorD1, speed);
+    analogWrite(MotorD2, 0);
 }
+
 // 右侧的电机较快，左侧的电机较慢
-void goAheadLeft(){ 
-    
-    analogWrite(MotorA1,speed);
-    analogWrite(MotorA2,0);
-    analogWrite(MotorB1,speed);
-    analogWrite(MotorB2,0);
-    analogWrite(MotorC1,speed/speed_Coeff);
-    analogWrite(MotorC2,0);
-    analogWrite(MotorD1,speed/speed_Coeff);
-    analogWrite(MotorD2,0);
-
+void goAheadLeft() { 
+    analogWrite(MotorA1, speed);
+    analogWrite(MotorA2, 0);
+    analogWrite(MotorB1, speed);
+    analogWrite(MotorB2, 0);
+    analogWrite(MotorC1, speed / speed_Coeff);
+    analogWrite(MotorC2, 0);
+    analogWrite(MotorD1, speed / speed_Coeff);
+    analogWrite(MotorD2, 0);
 }
+
 // 左侧的电机较快，右侧的电机较慢 但是是倒车
-void goBackRight(){ 
-    
-    analogWrite(MotorA1,0);
-    analogWrite(MotorA2,speed/speed_Coeff);
-    analogWrite(MotorB1,0);
-    analogWrite(MotorB2,speed/speed_Coeff);
-    analogWrite(MotorC1,speed);
-    analogWrite(MotorC2,0);
-    analogWrite(MotorD1,speed);
-    analogWrite(MotorD2,0);
-
+void goBackRight() { 
+    analogWrite(MotorA1, 0);
+    analogWrite(MotorA2, speed / speed_Coeff);
+    analogWrite(MotorB1, 0);
+    analogWrite(MotorB2, speed / speed_Coeff);
+    analogWrite(MotorC1, speed);
+    analogWrite(MotorC2, 0);
+    analogWrite(MotorD1, speed);
+    analogWrite(MotorD2, 0);
 }
+
 // 右侧的电机较快，左侧的电机较慢 但是是倒车
-void goBackLeft(){ 
-    
-    analogWrite(MotorA1,speed);
-    analogWrite(MotorA2,0);
-    analogWrite(MotorB1,speed);
-    analogWrite(MotorB2,0);
-    analogWrite(MotorC1,0);
-    analogWrite(MotorC2,speed/speed_Coeff);
-    analogWrite(MotorD1,0);
-    analogWrite(MotorD2,speed/speed_Coeff);
-
+void goBackLeft() { 
+    analogWrite(MotorA1, speed);
+    analogWrite(MotorA2, 0);
+    analogWrite(MotorB1, speed);
+    analogWrite(MotorB2, 0);
+    analogWrite(MotorC1, 0);
+    analogWrite(MotorC2, speed / speed_Coeff);
+    analogWrite(MotorD1, 0);
+    analogWrite(MotorD2, speed / speed_Coeff);
 }
 
-void stop(){ 
-
+void stop() { 
     digitalWrite(MotorA1, LOW);
     digitalWrite(MotorA2, LOW);
     digitalWrite(MotorB1, LOW);
@@ -154,37 +157,59 @@ void stop(){
     digitalWrite(MotorC2, LOW);
     digitalWrite(MotorD1, LOW);
     digitalWrite(MotorD2, LOW);
-
 }
 
-String command;             //String to store app command state.
-int speed = 800;         // 400 - 1023.
+String command;             // String to store app command state.
+int speed = 128;         // Speed of the motors. 0-255
 int speed_Coeff = 3;
 
-const char* ssid = "NodeMCU Car";
-ESP8266WebServer server(80);
+void HTTP_handleRoot() {
+    String html = "<html><body>";
+    html += "<h1>ESP8266 Car Control</h1>";
+    html += "<a href='/?State=F'>Forward</a><br>";
+    html += "<a href='/?State=B'>Backward</a><br>";
+    html += "<a href='/?State=L'>Left</a><br>";
+    html += "<a href='/?State=R'>Right</a><br>";
+    html += "<a href='/?State=I'>Ahead Right</a><br>";
+    html += "<a href='/?State=G'>Ahead Left</a><br>";
+    html += "<a href='/?State=J'>Back Right</a><br>";
+    html += "<a href='/?State=H'>Back Left</a><br>";
+    html += "<a href='/?State=0'>Speed 0</a><br>";
+    html += "<a href='/?State=1'>Speed 25</a><br>";
+    html += "<a href='/?State=2'>Speed 50</a><br>";
+    html += "<a href='/?State=3'>Speed 75</a><br>";
+    html += "<a href='/?State=4'>Speed 100</a><br>";
+    html += "<a href='/?State=5'>Speed 125</a><br>";
+    html += "<a href='/?State=6'>Speed 150</a><br>";
+    html += "<a href='/?State=7'>Speed 175</a><br>";
+    html += "<a href='/?State=8'>Speed 200</a><br>";
+    html += "<a href='/?State=9'>Speed 240</a><br>";
+    html += "<a href='/?State=S'>Stop</a><br>";
+    html += "</body></html>";
+    server.send(200, "text/html", html);
+}
 
 void loop() {
     server.handleClient();
     
-      command = server.arg("State");
-      if (command == "F") goforwards();
-      else if (command == "B") goBack();
-      else if (command == "L") goLeft();
-      else if (command == "R") goRight();
-      else if (command == "I") goAheadRight();
-      else if (command == "G") goAheadLeft();
-      else if (command == "J") goBackRight();
-      else if (command == "H") goBackLeft();
-      else if (command == "0") speed = 400;
-      else if (command == "1") speed = 470;
-      else if (command == "2") speed = 540;
-      else if (command == "3") speed = 610;
-      else if (command == "4") speed = 680;
-      else if (command == "5") speed = 750;
-      else if (command == "6") speed = 820;
-      else if (command == "7") speed = 890;
-      else if (command == "8") speed = 960;
-      else if (command == "9") speed = 1023;
-      else if (command == "S") stop();
-}
+    command = server.arg("State");
+    if (command == "F") goforwards();
+    else if (command == "B") goBack();
+    else if (command == "L") goLeft();
+    else if (command == "R") goRight();
+    else if (command == "I") goAheadRight();
+    else if (command == "G") goAheadLeft();
+    else if (command == "J") goBackRight();
+    else if (command == "H") goBackLeft();
+    else if (command == "0") speed = 0;
+    else if (command == "1") speed = 25;
+    else if (command == "2") speed = 50;
+    else if (command == "3") speed = 75;
+    else if (command == "4") speed = 100;
+    else if (command == "5") speed = 125;
+    else if (command == "6") speed = 150;
+    else if (command == "7") speed = 175;
+    else if (command == "8") speed = 200;
+    else if (command == "9") speed = 240;
+    else if (command == "S") stop();
+}    
