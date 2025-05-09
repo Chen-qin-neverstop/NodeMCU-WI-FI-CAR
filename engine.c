@@ -24,7 +24,7 @@ const int MotorD2 = D8;
 
 // 定义 WiFi 信息
 const char* ssid = "NodeMCU Car";
-const char* password = "12345678"; // 设置 WiFi 密码
+const char* password = "987654321"; // 设置 WiFi 密码
 
 ESP8266WebServer server(80);
 
@@ -57,7 +57,8 @@ void setup() {
   server.begin();
 
 }
-
+// 注意：在使用 L9110S 电机驱动模块时，电机A1A2、B1B2 的引脚连接方式与C1C2、D1D2 是相反的
+// 所以MotorA和MotorB的引脚连接是正常连接，MotorC和MotorD则相反
 void goforwards() { 
     analogWrite(MotorA1, speed);
     analogWrite(MotorA2, 0);
